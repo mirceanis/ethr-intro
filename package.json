@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "mermaid": "^11.14.0",
     "reveal.js": "^5.2.1"
   },
   "devDependencies": {

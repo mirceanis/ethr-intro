@@ -201,6 +201,49 @@ body {
   font-size: 0.8rem;
 }
 
+.reveal .mermaid {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.reveal .mermaid svg {
+  height: auto;
+  max-width: 100%;
+}
+
+.reveal .mermaid--resolver {
+  min-height: 18rem;
+}
+
+.reveal .mermaid .node rect,
+.reveal .mermaid .node polygon,
+.reveal .mermaid .node path {
+  fill: #0d2038;
+  stroke: rgba(125, 211, 252, 0.35);
+}
+
+.reveal .mermaid .node .label,
+.reveal .mermaid .edgeLabel {
+  color: var(--text);
+}
+
+.reveal .mermaid .label foreignObject,
+.reveal .mermaid .label div,
+.reveal .mermaid .edgeLabel div {
+  color: var(--text);
+}
+
+.reveal .mermaid .edgePath path,
+.reveal .mermaid marker path {
+  stroke: var(--accent);
+}
+
+.reveal .mermaid .edgeLabel rect {
+  fill: rgba(11, 23, 40, 0.96);
+  opacity: 1;
+}
+
 .vertical-hint {
   align-items: center;
   background: rgba(6, 19, 34, 0.92);
@@ -332,6 +375,10 @@ body {
 
   .reveal .slide-number {
     font-size: 0.7rem;
+  }
+
+  .reveal .mermaid--resolver {
+    min-height: 13rem;
   }
 
   .vertical-hint {

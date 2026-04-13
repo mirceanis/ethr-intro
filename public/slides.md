@@ -1,4 +1,5 @@
 <!-- .slide: class="title-slide" -->
+
 # How `did:ethr` Works
 
 A story-driven deep explainer.
@@ -8,20 +9,74 @@ A story-driven deep explainer.
 
 ---
 
+# What's `ethr`?
+
+`did:ethr` is a DID method that uses the **Ethereum blockchain** to update and resolve DIDs.
+
+Ethereum is a global, shared, virtual machine.<br/>
+Anyone can **read** the state of the machine (for free) and **write** to it (with some cost).<br/>
+It uses programs called **smart contracts** to define rules for how state can be stored and updated.<br/>
+Updates to the machine are made by transactions, which require a signature from a key pair and a fee called **gas**.<br/>
+
+--
+
+# Transactions?
+
+A transaction is a **signed message** that tells the Ethereum machine to **update its state** according to some rules.
+
+- It has a sender (the signer) and a recipient (a smart contract or another account).
+- It can include data (e.g. function calls and arguments) and a fee (gas).
+- Once included in a **block**, it becomes part of the **immutable history** of the blockchain.
+
+--
+
+# Accounts?
+
+There are two types of accounts on Ethereum:
+
+* **Externally Owned Accounts (EOAs)**:
+  - controlled by a private key
+  - can sign and send transactions
+
+* **Smart Contract Accounts**:
+  - controlled by code
+  - can execute logic when their functions are called by transactions
+  - can call other contract functions
+
+Both types of accounts have an _address_, in the same address space.
+
+--
+
+# Smart Contracts?
+
+A smart contract is a program that lives on the Ethereum virtual machine.
+
+It defines rules (functions) for how its state can be updated.
+
+When a transaction calls a function on the contract, the contract executes its code and updates its state accordingly.
+
+Smart contract functions can emit **events** that are recorded in the transaction logs.
+
+Some functions can be read-only (view/pure) and do not require a transaction or gas to call.
+
+---
+
 # Your wallet address is your DID
 
-`did:ethr` lets an Ethereum account, or its corresponding public key act as a decentralized identifier.
+`did:ethr` lets an Ethereum account, or its corresponding public key act as
+a [Decentralized Identifier](https://www.w3.org/TR/did-1.0/).
 
 - Any Ethereum address or public key has an implicit DID Document, with itself as controller.
-- This DID Document can be updated by the address it initially identifies.
+- This DID Document can be updated by the controller by sending transactions to
+  a [ERC1056 registry contract](https://github.com/uport-project/ethr-did-registry/blob/master/contracts/EthereumDIDRegistry.sol).
 - A resolver assembles a DID document from Ethereum state and history.
 - The controller can rotate.
 
 --
 
-# Your wallet address is your DID
+# Role of the Resolver
 
-The resolver looks at the history of on-chain events to figure out:
+The resolver looks at the history of changes to figure out:
 
 - if the DID has had any updates
 - which updates are DID updates vs unrelated transactions
@@ -39,9 +94,9 @@ The resolver looks at the history of on-chain events to figure out:
 
 ---
 
-## Not a Profile Page
+## Not a Profile Page!
 
-The DID document is not meant to be a biography or claims bundle.
+The DID document is NOT meant to be a biography or claims bundle.
 
 It mostly answers:
 
@@ -55,19 +110,20 @@ It mostly answers:
 
 We start with the simplest form.
 
-[`did:ethr:0x1234567890abcdef1234567890abcdef12345678`](https://dev.uniresolver.io/#did:ethr:0x1234567890abcdef1234567890abcdef12345678)
+[
+`did:ethr:0x1234567890abcdef1234567890abcdef12345678`](https://dev.uniresolver.io/#did:ethr:0x1234567890abcdef1234567890abcdef12345678)
 
 Read it as:
 
 - DID scheme: `did`
-- method: `ethr`
-- method-specific identifier: `0x1234567890abcdef1234567890abcdef12345678`
+- DID method: `ethr`
+- method-specific identifier: `0x1234567890abcdef1234567890abcdef12345678` - an Ethereum address
 
 --
 
 ## DID Document
 
-The resolver builds a DID document for this identifier:
+For this particular DID, the resolver returns this DID document:
 
 ```json
 {
@@ -93,13 +149,16 @@ The resolver builds a DID document for this identifier:
 
 # Creation Without Registration
 
-There is no separate "create DID" transaction.
+There is no "create DID" operation.
+
+DIDs exist as soon as you can refer to them.
 
 - If you control an Ethereum key pair, you can already refer to it as `did:ethr:...`.
 - On-chain activity starts only when you want the DID to evolve.
 - That means creation is private and has no upfront gas cost.
 
-[Click here to resolve this imaginary DID: `did:ethr:0x1234567890abcdef1234567890abcdef12345678`](https://dev.uniresolver.io/#did:ethr:0x1234567890abcdef1234567890abcdef12345678)
+[Click here to resolve this imaginary DID:<br/>
+`did:ethr:0x1234567890abcdef1234567890abcdef12345678`](https://dev.uniresolver.io/#did:ethr:0x1234567890abcdef1234567890abcdef12345678)
 
 --
 
@@ -108,8 +167,7 @@ There is no separate "create DID" transaction.
 Even with no registry history, resolution still returns a minimal DID document.
 
 - It includes a `#controller` verification method.
-- That method is referenced from `authentication`.
-- It is also referenced from `assertionMethod`.
+- That method is referenced from `authentication` and `assertionMethod`.
 
 --
 
@@ -122,56 +180,69 @@ Even with no registry history, resolution still returns a minimal DID document.
 
 ---
 
-# What the Resolver Returns
+# Role of the Registry
 
-The DID document is *NOT stored as a JSON file*.
+The Ethereum DID Registry is a smart contract that acts as a shared source of truth for DID state and history.
 
-The resolver builds it at resolve time:
-- read current owner
-- read the latest change point
-- walk backward through linked events
-- interpret the active state from this history of events
+It provides a set of _functions_ and defines a set of _events_<br/>
+that allow DID controllers to publish updates<br/>
+and resolvers to construct the DID document.
 
---
+```solidity
+// simplified interface:
 
-## Minimal DID Document
+contract EthereumDIDRegistry {
+    mapping(address => address) public owners;
+    mapping(address => uint) public changed;
 
-```json
-{
-  "id": "did:ethr:0x1234567890abcdef1234567890abcdef12345678",
-  "verificationMethod": [
-    {
-      "id": "did:ethr:0x1234567890abcdef1234567890abcdef12345678#controller",
-      "type": "EcdsaSecp256k1RecoveryMethod2020",
-      "controller": "did:ethr:0x1234567890abcdef1234567890abcdef12345678",
-      "blockchainAccountId": "eip155:1:0x1234567890abcdef1234567890abcdef12345678"
-    }
-  ],
-  "authentication": ["...#controller"],
-  "assertionMethod": ["...#controller"]
+    function changeOwner(address identity, address newOwner) public;
+
+    function identityOwner(address identity) public view returns (address);
+
+    function setAttribute(address identity, bytes32 name, bytes value, uint validity) public;
+
+    function revokeAttribute(address identity, bytes32 name, bytes value) public;
+
+    event DIDOwnerChanged();
+    event DIDAttributeChanged();
 }
 ```
 
+In terms of Object-Oriented Programming, you can think of the registry as a class instance<br/>
+that defines the state and behavior of DIDs on a globally accessible virtual machine called Ethereum.
+
 ---
 
-# How the DID Document Is Reconstructed
+# Resolver Walkthrough
 
-At a high level, the resolver does this:
+The DID document is *NOT stored as a JSON file*.
 
-1. Ask the registry for the current controller.
-2. Ask the registry for the latest block where something changed.
-3. Follow each event's `previousChange` pointer backward.
-4. Rebuild the active keys, delegates, and services.
+The resolver builds it at resolve time by walking the identity history backward:
+
+1. Ask the registry for the latest block where something `changed`.
+2. Get the events at that block and find out what changed and where to look next (`previousChange`).
+3. **Follow** each event's `previousChange` pointer backward, collecting events at every relevant block.
+4. Once the **full history** is available, compute the active keys, and services.
+
+```mermaid
+flowchart LR
+    A(["changed(identity)"]) -->|"latest block #"| B["getLogs(block)"]
+    B -->|"parse events"| C{"previousChange<br/>== 0 ?"}
+    C -->|no| B
+    C -->|yes| D["Full history<br/>collected"]
+    D --> F(["DID Document"])
+```
 
 --
 
 ## The Two Important Reads
 
-`identityOwner(identity)` tells the resolver who currently controls the DID.
+* `changed(identity)` tells the resolver when the latest change happened (block number).
+* `getLogs(identity, block)` lets the resolver read the relevant events at that block and find out
+  * what changed 
+  * where to look next.
 
-`changed(identity)` tells the resolver where the latest change happened.
-
-That keeps resolution from scanning the whole chain from genesis.
+This avoids scanning the whole chain from genesis.
 
 --
 
@@ -183,8 +254,88 @@ The resolver interprets three event families:
 - `DIDDelegateChanged`
 - `DIDAttributeChanged`
 
+Each event has a `previousChange` field that points to the block number of the previous change.<br/>
 The history is linked block-to-block through `previousChange`.
 
+---
+
+## Minimal DID Document
+
+When `changed(0xAddress)` returns `0`,<br/>it means no updates have ever happened.
+
+The resolver returns the **implicit DID document**:
+
+```json
+{
+  "id": "did:ethr:0xAddress",
+  "verificationMethod": [
+    {
+      "id": "did:ethr:0xAddress#controller",
+      "type": "EcdsaSecp256k1RecoveryMethod2020",
+      "controller": "did:ethr:0xAddress",
+      "blockchainAccountId": "eip155:1:0xAddress"
+    }
+  ],
+  "authentication": [
+    "...#controller"
+  ],
+  "assertionMethod": [
+    "...#controller"
+  ]
+}
+```
+
+--
+
+# A DID with updates
+
+Example DID with 2 updates at blocks 314 and 42:
+```mermaid
+flowchart LR
+    start(["changed(identity)<br/>result: 314"]) -->|"getLogs(314)"| event2["parse event:<br/>previousChange: 42"]
+    event2 -->|"getLogs(42)"| event1["parse event:<br/>previousChange: 0"]
+    event2 --> e2type[/DIDOwnerChanged/]
+    event1 -->|stop at 0| stop(["Full history collected<br/>Construct DID Document"])
+    event1 --> e1type[/DIDAttributeChanged/]
+```
+
+--
+
+# DID Document with updates
+
+```json5
+{
+  "id": "did:ethr:0xAddress",
+  "verificationMethod": [
+    {
+      "id": "did:ethr:0xAddress#controller",
+      "type": "EcdsaSecp256k1RecoveryMethod2020",
+      "controller": "did:ethr:0xAddress",
+      "blockchainAccountId": "eip155:1:0xNewOwnerAddress" // <-- from DIDOwnerChanged at block 314
+    },
+    {
+      "id": "did:ethr:0xAddress#delegate-1",
+      "type": "EcdsaSecp256k1VerificationKey2019",
+      "controller": "did:ethr:0xAddress",
+      "publicKeyHex": "02abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" // <-- from DIDAttributeChanged at block 42
+    }
+  ],
+  "authentication": [
+    "...#controller"
+  ],
+  "assertionMethod": [
+    "...#controller",
+    "did:ethr:0xAddress#delegate-1" // <-- from DIDAttributeChanged at block 42
+  ]
+}
+```
+
+---
+
+# Try it out!
+
+<input type="text" value="did:ethr:0x1234567890abcdef1234567890abcdef12345678" style="width: 100%; font-size: 1em; padding: 0.5em; margin-top: 1em;" onfocus="this.select()" oninput="this.value = this.value.trim(); if (this.value.startsWith('did:ethr:')) { window.location.href = 'https://dev.uniresolver.io/#' + this.value; }" />
+<div id="result-container"></div>
 ---
 
 # What Can Change Over Time
@@ -211,7 +362,7 @@ Later, control can move somewhere else:
 
 ---
 
-# `did:ethr` is Network-Scoped
+# `did:ethr` is network-scoped
 
 So far we used the simplest style, which defaults to Ethereum mainnet.
 
@@ -219,7 +370,7 @@ Now we make the network explicit:
 
 `did:ethr:sepolia:0x1234567890abcdef1234567890abcdef12345678`
 
-That is a different DID context, with different resolution history.
+That is a _different DID_, with different resolution history.
 Effectively an independent DID that happens to share most of method-specific identifier.
 
 --
@@ -229,7 +380,7 @@ Effectively an independent DID that happens to share most of method-specific ide
 - The same address can exist on many EVM networks.
 - `did:ethr` needs a way to say which registry and chain to use.
 - Network scope changes which events and state count during resolution.
-- Different networks have different costs and security properties.  
+- Different networks have different costs and security properties.
 
 ---
 
