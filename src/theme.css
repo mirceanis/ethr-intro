@@ -297,6 +297,73 @@ body {
   }
 }
 
+/* DID resolver form */
+
+.did-resolver-form {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+
+.did-resolver-form input {
+  background: rgba(6, 15, 28, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  outline: none;
+  padding: 0.55rem 0.75rem;
+}
+
+.did-resolver-form input:focus {
+  border-color: var(--accent);
+}
+
+.did-resolver-form button {
+  background: rgba(125, 211, 252, 0.12);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.55rem 1.2rem;
+  transition: background 120ms ease;
+  white-space: nowrap;
+}
+
+.did-resolver-form button:hover {
+  background: rgba(125, 211, 252, 0.22);
+}
+
+/* DID result container */
+
+.did-result {
+  background: rgba(6, 15, 28, 0.9);
+  border: 1px solid rgba(116, 211, 252, 0.14);
+  border-radius: 16px;
+  color: #d8e6ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  margin-top: 0.8rem;
+  max-height: 42vh;
+  overflow: auto;
+  padding: 1rem 1.1rem;
+  white-space: pre;
+}
+
+.did-result--loading {
+  color: var(--muted);
+}
+
+.did-result--error {
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #fca5a5;
+}
+
 @media (max-width: 900px), (max-height: 700px) {
   .reveal-viewport,
   .reveal,
@@ -379,6 +446,22 @@ body {
 
   .reveal .mermaid--resolver {
     min-height: 13rem;
+  }
+
+  .did-resolver-form input {
+    font-size: 0.82rem;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .did-resolver-form button {
+    font-size: 0.82rem;
+    padding: 0.45rem 0.9rem;
+  }
+
+  .did-result {
+    font-size: 0.62rem;
+    max-height: 32vh;
+    padding: 0.7rem 0.85rem;
   }
 
   .vertical-hint {

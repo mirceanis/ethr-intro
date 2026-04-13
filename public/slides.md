@@ -334,8 +334,12 @@ flowchart LR
 
 # Try it out!
 
-<input type="text" value="did:ethr:0x1234567890abcdef1234567890abcdef12345678" style="width: 100%; font-size: 1em; padding: 0.5em; margin-top: 1em;" onfocus="this.select()" oninput="this.value = this.value.trim(); if (this.value.startsWith('did:ethr:')) { window.location.href = 'https://dev.uniresolver.io/#' + this.value; }" />
+<div class="did-resolver-form">
+  <input id="did-input" type="text" value="did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a" onfocus="this.select()" />
+  <button id="did-resolve-btn">Resolve</button>
+</div>
 <div id="result-container"></div>
+
 ---
 
 # What Can Change Over Time
