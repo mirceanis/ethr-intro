@@ -1,9 +1,5 @@
-import Reveal from "reveal.js";
-import Markdown from "reveal.js/plugin/markdown/markdown.esm.js";
-
-import "reveal.js/dist/reveal.css";
-import "reveal.js/dist/theme/serif.css";
-import "./theme.css";
+import Reveal from "https://esm.sh/reveal.js@5.2.1";
+import Markdown from "https://esm.sh/reveal.js@5.2.1/plugin/markdown/markdown.esm.js";
 
 const compactViewportQuery = window.matchMedia("(max-width: 900px), (max-height: 700px)");
 
@@ -12,7 +8,7 @@ let resolverPromise;
 
 async function getMermaid() {
     if (!mermaidPromise) {
-        mermaidPromise = import("mermaid").then(({default: mermaid}) => {
+        mermaidPromise = import("https://esm.sh/mermaid@11.14.0").then(({default: mermaid}) => {
             mermaid.initialize({
                 startOnLoad: false,
                 securityLevel: "loose",
