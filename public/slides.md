@@ -566,6 +566,22 @@ The DID plane is what users interact with when they resolve a DID or use it in a
 
 The control plane is what DID controllers interact with when they want to update their DID state.
 
+
+```mermaid
+flowchart TB
+    subgraph did["DID Plane"]
+        direction LR
+        user["User / Verifier"] -->|"resolve(did)"| resolver["Resolver"]
+        resolver -->|"returns"| doc(["DID Document"])
+    end
+    subgraph ctrl["Control Plane"]
+        direction LR
+        controller["DID Controller"] -->|"tx"| registry["ERC-1056 Registry"]
+        registry -->|"emits"| events["Events & State"]
+    end
+    resolver -.->|"reads"| events
+```
+
 This separation allows for more flexibility and composability, as different control models can be used for different DIDs.
 
 --
