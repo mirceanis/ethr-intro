@@ -143,6 +143,13 @@ function setupDidResolver() {
     input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") resolveDid(input.value);
     });
+
+    document.querySelectorAll(".did-example").forEach((el) => {
+        el.addEventListener("click", () => {
+            input.value = el.dataset.did;
+            resolveDid(el.dataset.did);
+        });
+    });
 }
 
 function getDeckLayout() {

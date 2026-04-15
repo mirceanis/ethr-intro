@@ -16,7 +16,8 @@ A story-driven deep explainer.
 Ethereum is a global, shared, virtual machine.<br/>
 Anyone can **read** the state of the machine (for free) and **write** to it (with some cost).<br/>
 It uses programs called **smart contracts** to define rules for how state can be stored and updated.<br/>
-Updates to the machine are made by transactions, which require a signature from a key pair and a fee called **gas**.<br/>
+Updates to the machine are made by transactions, which require a signature from a key pair and a fee called **gas
+**.<br/>
 
 --
 
@@ -35,13 +36,13 @@ A transaction is a **signed message** that tells the Ethereum machine to **updat
 There are two types of accounts on Ethereum:
 
 * **Externally Owned Accounts (EOAs)**:
-  - controlled by a private key
-  - can sign and send transactions
+    - controlled by a private key
+    - can sign and send transactions
 
 * **Smart Contract Accounts**:
-  - controlled by code
-  - can execute logic when their functions are called by transactions
-  - can call other contract functions
+    - controlled by code
+    - can execute logic when their functions are called by transactions
+    - can call other contract functions
 
 Both types of accounts have an _address_, in the same address space.
 
@@ -49,15 +50,17 @@ Both types of accounts have an _address_, in the same address space.
 
 # Smart Contracts?
 
-A smart contract is a program that lives on the Ethereum virtual machine.
+A smart contract is a **program** that lives on the Ethereum virtual machine.
 
-It defines rules (functions) for how its state can be updated.
+It defines rules (functions) for how its state can be read or updated.
 
-When a transaction calls a function on the contract, the contract executes its code and updates its state accordingly.
+When a **transaction** calls a function on the contract, the contract executes its code and **updates** its state accordingly.
 
-Smart contract functions can emit **events** that are recorded in the transaction logs.
+Smart contract functions can emit **events** that are recorded in the **transaction logs**.
 
 Some functions can be read-only (view/pure) and do not require a transaction or gas to call.
+
+Functions can **call other functions** within the same contract or in other contracts.
 
 ---
 
@@ -89,8 +92,18 @@ The resolver looks at the history of changes to figure out:
 
 - The DID subject is whatever the DID identifies
 - The controller is whoever can change the DID state
-- With `did:ethr` those start out aligned
-- They do not have to stay aligned forever
+- With `did:ethr` those start out aligned (like `did:key`, or `did:pkh`)
+- **They do not have to stay aligned forever**
+
+--
+
+## Controller authority
+
+By design, the controller address always appears in the DID Document with the suffix `#controller`.
+
+* no supplementary transaction needed to add it as a verification method
+* it is always present, even if the DID has no history of updates
+* updates to the controller are reflected in the DID Document as changes to the `blockchainAccountId` of the `#controller` method
 
 ---
 
@@ -108,10 +121,9 @@ It mostly answers:
 
 # Meet Our First `did:ethr`
 
-We start with the simplest form.
+We start with the simplest form, an address prefixed with `did:ethr:`:
 
-[
-`did:ethr:0x1234567890abcdef1234567890abcdef12345678`](https://dev.uniresolver.io/#did:ethr:0x1234567890abcdef1234567890abcdef12345678)
+[ `did:ethr:0x1234567890abcdef1234567890abcdef12345678`](https://dev.uniresolver.io/#did:ethr:0x1234567890abcdef1234567890abcdef12345678)
 
 Read it as:
 
@@ -182,11 +194,11 @@ Even with no registry history, resolution still returns a minimal DID document.
 
 # Role of the Registry
 
-The Ethereum DID Registry is a smart contract that acts as a shared source of truth for DID state and history.
+The Ethereum DID Registry is a smart contract that acts as a **shared source of truth** for DID state and history.
 
 It provides a set of _functions_ and defines a set of _events_<br/>
-that allow DID controllers to publish updates<br/>
-and resolvers to construct the DID document.
+that allow **DID controllers** to **publish updates**<br/>
+and **resolvers** to construct the **DID document**.
 
 ```solidity
 // simplified interface:
@@ -210,6 +222,33 @@ contract EthereumDIDRegistry {
 
 In terms of Object-Oriented Programming, you can think of the registry as a class instance<br/>
 that defines the state and behavior of DIDs on a globally accessible virtual machine called Ethereum.
+
+--
+
+# How does an event look like?
+
+When a DID controller successfully calls `changeOwner`, `setAttribute`, etc, the registry emits an event that looks like this:
+
+```json5
+{
+  "event": "DIDOwnerChanged",                               // the type of change
+  "identity": "0x1234567890abcdef1234567890abcdef12345678", // the DID subject
+  "owner": "0xabcdef1234567890abcdef1234567890abcdef12",    // new controller address
+  "previousChange": 42                                      // block number of the previous change for this subject
+}
+```
+
+[Here](https://etherscan.io/tx/0xf436f2f55dd299f35e7ddb881d2499a02cc248a1346280b0202e783a5e4623bf#eventlog) is what a live event looks like on a block explorer.
+
+--
+
+# Why Events?
+
+Events were chosen as the primary source of truth for DID updates because:
+- They are **cheap to write** (emit) compared to storing data in contract state.
+- They are **easily accessible** to resolvers via `getLogs`
+- They provide a **linked history** through the `previousChange` field, enabling efficient resolution without scanning the entire chain.
+- They allow for a **flexible data model**
 
 ---
 
@@ -239,8 +278,8 @@ flowchart LR
 
 * `changed(identity)` tells the resolver when the latest change happened (block number).
 * `getLogs(identity, block)` lets the resolver read the relevant events at that block and find out
-  * what changed 
-  * where to look next.
+    * what changed
+    * where to look next.
 
 This avoids scanning the whole chain from genesis.
 
@@ -290,6 +329,7 @@ The resolver returns the **implicit DID document**:
 # A DID with updates
 
 Example DID with 2 updates at blocks 314 and 42:
+
 ```mermaid
 flowchart LR
     start(["changed(identity)<br/>result: 314"]) -->|"getLogs(314)"| event2["parse event:<br/>previousChange: 42"]
@@ -334,11 +374,18 @@ flowchart LR
 
 # Try it out!
 
+Enter a `did:ethr` below to resolve it live.
 <div class="did-resolver-form">
   <input id="did-input" type="text" value="did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a" onfocus="this.select()" />
   <button id="did-resolve-btn">Resolve</button>
 </div>
 <div id="result-container"></div>
+
+Or chose one of the examples:
+
+  <button class="did-example" data-did="did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a">mainnet (no history)</button><br/>
+  <button class="did-example" data-did="did:ethr:gno:0xEd4aBF0BbA69C63e2657CF94693CC4a9070896a2">gnosis chain (with history)</button><br/>
+  <button class="did-example" data-did="did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b">mainnet (registry contract)</button><br/>
 
 ---
 

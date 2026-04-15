@@ -312,7 +312,6 @@ body {
   color: var(--text);
   flex: 1;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.95rem;
   outline: none;
   padding: 0.55rem 0.75rem;
 }
@@ -327,7 +326,6 @@ body {
   border-radius: 12px;
   color: var(--accent);
   cursor: pointer;
-  font-size: 0.95rem;
   font-weight: 600;
   padding: 0.55rem 1.2rem;
   transition: background 120ms ease;
@@ -346,7 +344,7 @@ body {
   border-radius: 16px;
   color: #d8e6ff;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.72rem;
+  font-size: 1rem;
   line-height: 1.45;
   margin-top: 0.8rem;
   max-height: 42vh;
@@ -362,6 +360,38 @@ body {
 .did-result--error {
   border-color: rgba(248, 113, 113, 0.35);
   color: #fca5a5;
+}
+
+/* DID example buttons */
+
+.did-examples {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+
+.did-examples__label {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.did-example {
+  background: rgba(125, 211, 252, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.75rem;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.did-example:hover {
+  background: rgba(125, 211, 252, 0.16);
+  border-color: var(--accent);
 }
 
 @media (max-width: 900px), (max-height: 700px) {
@@ -462,6 +492,15 @@ body {
     font-size: 0.62rem;
     max-height: 32vh;
     padding: 0.7rem 0.85rem;
+  }
+
+  .did-examples__label {
+    font-size: 0.72rem;
+  }
+
+  .did-example {
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
   }
 
   .vertical-hint {
