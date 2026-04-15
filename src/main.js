@@ -108,12 +108,11 @@ async function getDidResolver() {
     return resolverPromise;
 }
 
-async function resolveDid(did) {
-    const container = document.getElementById("result-container");
+async function resolveDid(did, container) {
     if (!container) return;
 
     container.textContent = "Resolving…";
-    container.className = "did-result did-result--loading";
+    container.className = "did-resolver__result did-result did-result--loading";
 
     try {
         const resolver = await getDidResolver();
@@ -121,33 +120,40 @@ async function resolveDid(did) {
 
         if (result.didResolutionMetadata?.error) {
             container.textContent = result.didResolutionMetadata.error + (result.didResolutionMetadata.message ? ": " + result.didResolutionMetadata.message : "");
-            container.className = "did-result did-result--error";
+            container.className = "did-resolver__result did-result did-result--error";
             return;
         }
 
         container.textContent = JSON.stringify(result.didDocument, null, 2);
-        container.className = "did-result did-result--ok";
+        container.className = "did-resolver__result did-result did-result--ok";
     } catch (err) {
         container.textContent = String(err.message || err);
-        container.className = "did-result did-result--error";
+        container.className = "did-resolver__result did-result did-result--error";
     }
 }
 
 function setupDidResolver() {
-    const input = document.getElementById("did-input");
-    const btn = document.getElementById("did-resolve-btn");
-    if (!input || !btn || btn.dataset.wired) return;
-    btn.dataset.wired = "true";
+    document.querySelectorAll(".did-resolver").forEach((widget) => {
+        if (widget.dataset.wired) return;
+        widget.dataset.wired = "true";
 
-    btn.addEventListener("click", () => resolveDid(input.value));
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") resolveDid(input.value);
-    });
+        const input = widget.querySelector(".did-resolver__input");
+        const btn = widget.querySelector(".did-resolver__btn");
+        const result = widget.querySelector(".did-resolver__result");
+        if (!input || !btn || !result) return;
 
-    document.querySelectorAll(".did-example").forEach((el) => {
-        el.addEventListener("click", () => {
-            input.value = el.dataset.did;
-            resolveDid(el.dataset.did);
+        const resolve = () => resolveDid(input.value, result);
+
+        btn.addEventListener("click", resolve);
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") resolve();
+        });
+
+        widget.querySelectorAll(".did-example").forEach((el) => {
+            el.addEventListener("click", () => {
+                input.value = el.dataset.did;
+                resolveDid(el.dataset.did, result);
+            });
         });
     });
 }

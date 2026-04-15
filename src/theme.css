@@ -297,6 +297,26 @@ body {
   }
 }
 
+/* Resolver slide flex layout */
+
+.reveal .slides section.resolver-slide {
+  display: flex !important;
+  flex-direction: column;
+  height: 100%;
+}
+
+.reveal .slides section.resolver-slide .did-resolver {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.reveal .slides section.resolver-slide .did-resolver__result {
+  flex: 1;
+  min-height: 0;
+}
+
 /* DID resolver form */
 
 .did-resolver-form {
@@ -345,9 +365,9 @@ body {
   color: #d8e6ff;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 1rem;
+  height: 100%;
   line-height: 1.45;
   margin-top: 0.8rem;
-  max-height: 42vh;
   overflow: auto;
   padding: 1rem 1.1rem;
   white-space: pre;
@@ -490,7 +510,6 @@ body {
 
   .did-result {
     font-size: 0.62rem;
-    max-height: 32vh;
     padding: 0.7rem 0.85rem;
   }
 

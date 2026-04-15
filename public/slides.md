@@ -410,21 +410,25 @@ Effectively an independent DID that happens to share most of method-specific ide
 
 ---
 
+<!-- .slide: class="resolver-slide" -->
+
 # Try it out!
 
 Enter a `did:ethr` below to resolve it live.
-<div class="did-resolver-form">
-  <input id="did-input" type="text" value="did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a" onfocus="this.select()" />
-  <button id="did-resolve-btn">Resolve</button>
+<div class="did-resolver">
+  <div class="did-resolver-form">
+    <input class="did-resolver__input" type="text" value="did:ethr:0xb9c5714089478a327f09197987f16f9e5d936e8a" onfocus="this.select()" />
+    <button class="did-resolver__btn">Resolve</button>
+  </div>
+  <div class="did-examples">
+    <span class="did-examples__label">Examples:</span>
+    <button class="did-example" data-did="did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b">mainnet (no history)</button>
+    <button class="did-example" data-did="did:ethr:0x3c865a75d98E711A472130b0CF42F393FF87834e">mainnet (with history)</button>
+    <button class="did-example" data-did="did:ethr:gno:0xEd4aBF0BbA69C63e2657CF94693CC4a9070896a2">gnosis chain (with history)</button>
+    <button class="did-example" data-did="did:ethr:sepolia:0xf61c81096c96f97e95ac52a570966195ad6c90dd">sepolia testnet (with history)</button>
+  </div>
+  <div class="did-resolver__result"></div>
 </div>
-
-Or chose one of the examples:<br/>
-<button class="did-example" data-did="did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b">mainnet (no history)</button><br/>
-<button class="did-example" data-did="did:ethr:0x3c865a75d98E711A472130b0CF42F393FF87834e">mainnet (with history)</button><br/>
-<button class="did-example" data-did="did:ethr:gno:0xEd4aBF0BbA69C63e2657CF94693CC4a9070896a2">gnosis chain (with history)</button><br/>
-<button class="did-example" data-did="did:ethr:sepolia:0xf61c81096c96f97e95ac52a570966195ad6c90dd">sepolia testnet (with history)</button><br/>
-
-<div id="result-container"></div>
 
 
 ---
@@ -451,18 +455,117 @@ Later, control can move somewhere else:
 - a smart contract
 - a proxy, multisig, delegator, or any other flexible control model
 
+--
 
+# Attributes
 
+The registry contract supports a flexible attribute model that allows the controller to publish arbitrary key-value pairs on-chain.
+Resolvers can interpret these attributes as they see fit, but the most common use cases are:
+- adding verification methods (keys)
+- adding service endpoints
 
+For the purpose of resolving DIDs, attribute changes that don't refer to DID semantics are ignored.
+
+The registry can be used as a general-purpose on-chain identity management system, not just for DIDs.
+( The Graph protocol used it as such in the past ).
+
+--
+
+# Delegates
+
+The registry contract supports a delegation mechanism that allows the controller to delegate some authority to other addresses.
+These delegates can be inspected on-chain, by other contracts, or off-chain by resolvers.
+
+In the Ethereum ecosystem, this pattern has evolved and more complex delegation models have emerged (e.g. ERC-1271, ERC-7710, etc),
+but the basic idea of on-chain delegation is still supported by the registry and can be used by resolvers.
+
+Valid delegate addresses are included in the DID document as verification methods, and can be used for authentication or assertion.
+
+---
+
+# Revocation and Expiry
+
+Attributes and delegates expire automatically.
+- When an attribute or delegate is set, the controller specifies a **validity period** (in seconds).
+- Once the validity period elapses, the attribute or delegate is **considered revoked** and is **not included in the resolved DID document**.
+- The **resolver checks the validity** period to determine if an attribute or delegate is still **active** or **expired**.
+
+Attributes and delegates can also be revoked manually by the controller before their validity period elapses.
+
+The resolver does not care about the reason for revocation, only about the current validity status.
+In the case of `did:ethr`, revocation is actually just a special case of expiry, where the controller sets the validity period to 0.
+
+---
+
+# Gas Costs
+
+Updating a DID requires sending a transaction to the registry contract, which incurs gas costs.
+The cost depends on the type of update (e.g. changing owner, adding/revoking an attribute) and **the current gas price** on the respective network.
+The cost is low, but still exists and can be a barrier for some users or use cases.
+
+For this reason, the `did:ethr` registry contract supports **meta-transactions**, where a third party pays the gas on behalf of the user.
+
+This happens without compromising custody or security, as the user must still sign the update with their private key.
+
+--
+
+# Censorship Resistance
+
+At most, the gas payer can choose not to publish a transaction.
+They cannot prevent the user from publishing it themselves, or from choosing another gas payer.
+
+The user can also choose to publish the transaction directly, without a gas payer, if they have enough gas tokens in their `#controller` account.
+
+---
+
+# Using public keys as the identifier
+
+`did:ethr` also supports using a public key as the method-specific identifier instead of an address.
+
+This allows for a more direct mapping between the DID and the cryptographic material that controls it, without the indirection of an address.
+
+The registry still uses the corresponding address of that public key as `controller`.
+
+--
+
+<!-- .slide: class="resolver-slide" -->
+
+# Resolve a public key DID:
+
+<div class="did-resolver">
+  <div class="did-resolver-form">
+    <input class="did-resolver__input" type="text" value="did:ethr:gno:0x03aa3149ef3e197d73edc6008cbd324814509d04eaf59881d4db16793858eecc06" onfocus="this.select()" />
+    <button class="did-resolver__btn">Resolve</button>
+  </div>
+  <div class="did-resolver__result"></div>
+</div>
+
+---
+
+# DID Plane vs Control Plane
+
+`did:ethr` mostly separates the DID plane (the identifier and its DID document) from the control plane (the registry and its functions).
+
+The DID plane is what users interact with when they resolve a DID or use it in a verifiable credential.
+
+The control plane is what DID controllers interact with when they want to update their DID state.
+
+This separation allows for more flexibility and composability, as different control models can be used for different DIDs.
+
+--
+
+# Why this separation matters
+
+- It allows for more flexible control models (e.g. smart contract wallets, multisigs, etc) without changing the resolver logic.
+- It frees the resolver from having to secure the history of the DID. Security is delegated to the decentralized nodes running the blockchain network.
+- It allows for different implementations of the registry (e.g. on different chains) without affecting the DID plane.
+- It enables the possibility of multiple resolvers with different performance or security tradeoffs, as they all rely on the same control plane.
+- It allows for the possibility of multiple DID planes (e.g. different identifier formats) that can still use the same control plane.
+
+---
 
 # TBD
 
-* attribute and delegate TTL
-* meta-transactions and gasless flows
-* public key variants of the identifier
-* explain the difference between the DID plane and the control plane
-* the registry can be used as a general-purpose on-chain identity management system, not just for DIDs ( The Graph protocol used it as such in the past )
-* isValidDelegate (proto ERC1271)
 * version IDs and historical resolution
 
 ---
