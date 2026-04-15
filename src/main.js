@@ -236,6 +236,10 @@ const deck = new Reveal({
 deck.on("ready", () => {
     void renderMermaidDiagrams();
     setupDidResolver();
+    document.querySelectorAll(".reveal a[href^='http']").forEach((a) => {
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener noreferrer");
+    });
 });
 
 deck.on("slidechanged", () => {
