@@ -9,19 +9,18 @@ A story-driven deep explainer.
 
 ---
 
-# What's `ethr`?
+# What's `ethr` ⟠ ?
 
 `did:ethr` is a DID method that uses the **Ethereum blockchain** to update and resolve DIDs.
 
 Ethereum is a global, shared, virtual machine.<br/>
 Anyone can **read** the state of the machine (for free) and **write** to it (with some cost).<br/>
 It uses programs called **smart contracts** to define rules for how state can be stored and updated.<br/>
-Updates to the machine are made by transactions, which require a signature from a key pair and a fee called **gas
-**.<br/>
+Updates to the machine are made by transactions, which require a signature from a key pair and a fee called **gas**.<br/>
 
 --
 
-# Transactions?
+## Transactions? 🔑→📒
 
 A transaction is a **signed message** that tells the Ethereum machine to **update its state** according to some rules.
 
@@ -31,7 +30,7 @@ A transaction is a **signed message** that tells the Ethereum machine to **updat
 
 --
 
-# Accounts?
+## Accounts 👛🔑?
 
 There are two types of accounts on Ethereum:
 
@@ -48,7 +47,7 @@ Both types of accounts have an _address_, in the same address space.
 
 --
 
-# Smart Contracts?
+## Smart Contracts 📜⚙️?
 
 A smart contract is a **program** that lives on the Ethereum virtual machine.
 
@@ -76,9 +75,13 @@ a [Decentralized Identifier](https://www.w3.org/TR/did-1.0/).
 - A resolver assembles a DID document from Ethereum state and history.
 - The controller can rotate.
 
+~~
+
+I mean it, [manage your DIDs here](https://mirceanis.xyz/ethr-manager) while you follow along.
+
 --
 
-# Role of the Resolver
+## Role of the Resolver
 
 The resolver looks at the **history** of changes to figure out:
 
@@ -109,7 +112,7 @@ By design, the controller address always appears in the DID Document with the su
 
 ---
 
-## Not a Profile Page!
+# Not a Profile Page!
 
 The DID document is NOT meant to be a biography or claims bundle.
 
@@ -119,9 +122,17 @@ It mostly answers:
 - which verification relationships they belong to
 - which service endpoints are currently published
 
+```mermaid
+graph LR
+  doc["📃 DID Document"]
+  doc --> keys["🔑 Verification Methods"]
+  doc --> rels["🔗 Verification Relationships"]
+  doc --> svcs["📡 Service Endpoints"]
+```
+
 --
 
-# Blockchains are **append-only**
+## Blockchains are **append-only**
 
 This means history is **always there**, even if you revoke it.
 
@@ -196,8 +207,8 @@ Even with no registry history, resolution still returns a minimal DID document.
 
 - No registration ceremony
 - No registry write just to exist
-- First transaction only happens when control or metadata changes
-- Infinitely scalable creation
+- First transaction only happens when control or data changes
+- **Infinitely scalable creation**
 
 ---
 
@@ -232,9 +243,11 @@ contract EthereumDIDRegistry {
 In terms of Object-Oriented Programming, you can think of the registry as a class instance<br/>
 that defines the state and behavior of DIDs on a globally accessible virtual machine called Ethereum.
 
+[Here](https://github.com/uport-project/ethr-did-registry/blob/master/contracts/EthereumDIDRegistry.sol) you can inspect the full 132 lines of contract code.
+
 --
 
-# How does an event look like?
+## How does an event look like?
 
 When a DID controller successfully calls `changeOwner`, `setAttribute`, etc, the registry emits an event that looks like
 this:
@@ -253,7 +266,7 @@ live event looks like on a block explorer.
 
 --
 
-# Why Events?
+## Why Events?
 
 Events were chosen as the primary source of truth for DID updates because:
 
@@ -298,7 +311,7 @@ This avoids scanning the whole chain from genesis.
 
 --
 
-## The Event Walk
+## The Event Walk 
 
 The resolver interprets three event families:
 
@@ -311,7 +324,7 @@ The history is linked block-to-block through `previousChange`.
 
 ---
 
-## Minimal DID Document
+# Minimal DID Document
 
 When `changed(0xAddress)` returns `0`,<br/>it means no updates have ever happened.
 
@@ -339,7 +352,7 @@ The resolver returns the **implicit DID document**:
 
 --
 
-# A DID with updates
+## A DID with updates
 
 Example DID with 2 updates at blocks 314 and 42:
 
@@ -354,7 +367,7 @@ flowchart LR
 
 --
 
-# DID Document with updates
+## DID Document with updates
 
 ```json5
 {
@@ -383,7 +396,7 @@ flowchart LR
 }
 ```
 
-[Click to resolve a read DID with updates](https://dev.uniresolver.io/#did:ethr:0x077d0d997341753523AA0a1ba4639b3b06C019A8)
+[Resolve a real DID with updates](https://dev.uniresolver.io/#did:ethr:0x077d0d997341753523AA0a1ba4639b3b06C019A8)
 
 ---
 
@@ -394,6 +407,7 @@ So far we used the simplest form, which defaults to Ethereum mainnet.
 Now we make the blockchain network explicit:
 
 `did:ethr:sepolia:0x1234567890abcdef1234567890abcdef12345678`
+<br/>(Sepolia is an ethereum testnet)
 
 That is a _different DID_, with different resolution history.
 Effectively an independent DID that happens to share most of method-specific identifier.
@@ -459,7 +473,7 @@ Later, control can move somewhere else:
 
 --
 
-# Attributes
+## Attributes
 
 The registry contract supports a flexible attribute model that allows the controller to publish arbitrary key-value pairs on-chain.
 Resolvers can interpret these attributes as they see fit, but the most common use cases are:
@@ -473,7 +487,7 @@ The registry can be used as a general-purpose on-chain identity management syste
 
 --
 
-# Delegates
+## Delegates
 
 The registry contract supports a delegation mechanism that allows the controller to delegate some authority to other addresses.
 These delegates can be inspected on-chain, by other contracts, or off-chain by resolvers.
@@ -525,7 +539,7 @@ This happens without compromising custody or security, as the user must still si
 
 --
 
-# Censorship Resistance
+## Censorship Resistance
 
 At most, the gas payer can choose not to publish a transaction.
 They cannot prevent the user from publishing it themselves, or from choosing another gas payer.
@@ -586,7 +600,7 @@ This separation allows for more flexibility and composability, as different cont
 
 --
 
-# Why this separation matters
+## Why this separation matters
 
 - It allows for more flexible control models (e.g. smart contract wallets, multisigs, etc) without changing the resolver logic.
 - It frees the resolver from having to secure the history of the DID. Security is delegated to the decentralized nodes running the blockchain network.
@@ -611,3 +625,12 @@ But it also inherits some tradeoffs:
 - resolver dependence on RPC access
 - gas costs when updates happen
 
+---
+
+# Links
+
+* [did:ethr spec](https://github.com/decentralized-identity/ethr-did/blob/master/doc/did-method-spec.md)
+* [ethr-did-resolver reference implementation](https://github.com/decentralized-identity/ethr-did-resolver)
+* [ethr-did-registry contract](https://github.com/uport-project/ethr-did-registry)
+* [source of this site](https://github.com/mirceanis/ethr-intro)
+* [DID manager](https://mirceanis.xyz/ethr-manager/)
