@@ -443,6 +443,8 @@ It gets interesting once the DID evolves.
 - extra keys can appear or get revoked
 - service endpoints can be published or removed
 
+[Connect your wallet and update your DID](https://mirceanis.xyz/ethr-manager) to see how the DID document changes in response to updates.
+
 --
 
 ## Controller Changes
@@ -494,6 +496,20 @@ Attributes and delegates can also be revoked manually by the controller before t
 
 The resolver does not care about the reason for revocation, only about the current validity status.
 In the case of `did:ethr`, revocation is actually just a special case of expiry, where the controller sets the validity period to 0.
+
+---
+
+# Deactivation
+
+`did:ethr` uses the null address to signal deactivation.
+
+To deactivate a DID, the controller calls `changeOwner` with `0x0000000000000000000000000000000000000000` as the new owner.
+
+The resolver treats a DID with a null owner as deactivated, effectively revoking all other verification methods and service entries.
+
+The registry contract does not have a specific "deactivate" function; it's not needed.
+
+The null address cannot send transactions or control the DID, so it effectively locks the DID in a deactivated state.
 
 ---
 
@@ -564,12 +580,6 @@ This separation allows for more flexibility and composability, as different cont
 
 ---
 
-# TBD
-
-* version IDs and historical resolution
-
----
-
 # Tradeoffs
 
 `did:ethr` gets a lot from Ethereum:
@@ -585,4 +595,3 @@ But it also inherits some tradeoffs:
 - resolver dependence on RPC access
 - gas costs when updates happen
 
---
