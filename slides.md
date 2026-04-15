@@ -323,6 +323,16 @@ The resolver interprets three event families:
 Each event has a `previousChange` field that points to the block number of the previous change.<br/>
 The history is linked block-to-block through `previousChange`.
 
+--
+
+## `previousChange` is an optimization mechanism
+
+Technically, the resolver could scan the whole chain for events related to the DID subject and reconstruct the history from there.
+
+OR it could use different services (like [The Graph](https://thegraph.com/)) to index events and query them without scanning.
+
+In the future (with an update to the resolver logic), events could use additional cryptographic pointers to improve security even further.
+
 ---
 
 # Minimal DID Document
