@@ -9,9 +9,9 @@ A story-driven deep explainer.
 
 ---
 
-# What's `ethr` ⟠ ?
+# What's `ethr` ?
 
-`did:ethr` is a DID method that uses the **Ethereum blockchain** to update and resolve DIDs.
+`did:ethr` is a DID method that uses an **Ethereum blockchain** to update and resolve DIDs.
 
 Ethereum is a global, shared, virtual machine.<br/>
 Anyone can **read** the state of the machine (for free) and **write** to it (with some cost).<br/>
@@ -62,6 +62,8 @@ Some functions can be read-only (view/pure) and do not require a transaction or 
 
 Functions can **call other functions** within the same contract or in other contracts.
 
+Contract code is immutable!
+
 ---
 
 # Your wallet address is your DID
@@ -70,8 +72,7 @@ Functions can **call other functions** within the same contract or in other cont
 a [Decentralized Identifier](https://www.w3.org/TR/did-1.0/).
 
 - Any Ethereum address or public key has an implicit DID Document, with itself as controller.
-- This DID Document can be updated by the controller by sending transactions to
-  a [ERC1056 registry contract](https://github.com/uport-project/ethr-did-registry/blob/master/contracts/EthereumDIDRegistry.sol).
+- This DID Document can be updated by the controller by sending transactions to an [ERC1056](https://eips.ethereum.org/EIPS/eip-1056) - [registry contract](https://github.com/uport-project/ethr-did-registry/blob/master/contracts/EthereumDIDRegistry.sol).
 - A resolver assembles a DID document from Ethereum state and history.
 - The controller can rotate.
 
@@ -262,7 +263,7 @@ this:
 ```
 
 [Here](https://etherscan.io/tx/0xf436f2f55dd299f35e7ddb881d2499a02cc248a1346280b0202e783a5e4623bf#eventlog) is what a
-live event looks like on a block explorer.
+real event looks like on a block explorer.
 
 --
 
@@ -419,7 +420,7 @@ Effectively an independent DID that happens to share most of method-specific ide
 - The same address can exist on many EVM networks.
 - `did:ethr` needs a way to say which registry and chain to use.
 - Network scope changes which events and state count during resolution.
-- Different networks have different costs and security properties.
+- Different networks have **different costs** and security properties.
 - DIDs will resolve to different DID Documents when different chains or registries are used.
 
 ---
@@ -483,7 +484,7 @@ Resolvers can interpret these attributes as they see fit, but the most common us
 For the purpose of resolving DIDs, attribute changes that don't refer to DID semantics are ignored.
 
 The registry can be used as a general-purpose on-chain identity management system, not just for DIDs.
-( The Graph protocol used it as such in the past ).
+( The Graph protocol used it as such ).
 
 --
 
@@ -501,7 +502,7 @@ Valid delegate addresses are included in the DID document as verification method
 
 # Revocation and Expiry
 
-Attributes and delegates expire automatically.
+Attributes and delegates **expire automatically**.
 - When an attribute or delegate is set, the controller specifies a **validity period** (in seconds).
 - Once the validity period elapses, the attribute or delegate is **considered revoked** and is **not included in the resolved DID document**.
 - The **resolver checks the validity** period to determine if an attribute or delegate is still **active** or **expired**.
@@ -523,19 +524,19 @@ The resolver treats a DID with a null owner as deactivated, effectively revoking
 
 The registry contract does not have a specific "deactivate" function; it's not needed.
 
-The null address cannot send transactions or control the DID, so it effectively locks the DID in a deactivated state.
+The **null address cannot send transactions** to control the DID, so it effectively locks the DID in a deactivated state.
 
 ---
 
 # Gas Costs
 
-Updating a DID requires sending a transaction to the registry contract, which incurs gas costs.
-The cost depends on the type of update (e.g. changing owner, adding/revoking an attribute) and **the current gas price** on the respective network.
+Updating a `did:ethr` requires sending a transaction to the registry contract, which incurs gas costs.<br/>
+The cost depends on the type of update (e.g. changing owner, adding/revoking an attribute) and **the current gas price** on the respective network.<br/>
 The cost is low, but still exists and can be a barrier for some users or use cases.
 
 For this reason, the `did:ethr` registry contract supports **meta-transactions**, where a third party pays the gas on behalf of the user.
 
-This happens without compromising custody or security, as the user must still sign the update with their private key.
+This happens **without compromising custody or security**, as the user must still sign the update with their private key.
 
 --
 
@@ -585,12 +586,12 @@ The control plane is what DID controllers interact with when they want to update
 flowchart TB
     subgraph did["DID Plane"]
         direction LR
-        user["User / Verifier"] -->|"resolve(did)"| resolver["Resolver"]
+        user["Verifier"] -->|"resolve(did)"| resolver["Resolver"]
         resolver -->|"returns"| doc(["DID Document"])
     end
     subgraph ctrl["Control Plane"]
         direction LR
-        controller["DID Controller"] -->|"tx"| registry["ERC-1056 Registry"]
+        controller["Controller address"] -->|"tx"| registry["ERC-1056 Registry"]
         registry -->|"emits"| events["Events & State"]
     end
     resolver -.->|"reads"| events
@@ -630,7 +631,12 @@ But it also inherits some tradeoffs:
 # Links
 
 * [did:ethr spec](https://github.com/decentralized-identity/ethr-did/blob/master/doc/did-method-spec.md)
-* [ethr-did-resolver reference implementation](https://github.com/decentralized-identity/ethr-did-resolver)
+* [ethr-did-resolver reference implementation (TypeScript)](https://github.com/decentralized-identity/ethr-did-resolver)
 * [ethr-did-registry contract](https://github.com/uport-project/ethr-did-registry)
-* [source of this site](https://github.com/mirceanis/ethr-intro)
-* [DID manager](https://mirceanis.xyz/ethr-manager/)
+* [ERC-1056 EIP](https://eips.ethereum.org/EIPS/eip-1056)
+* [Source of this static site](https://github.com/mirceanis/ethr-intro)
+* [DID manager demo](https://mirceanis.xyz/ethr-manager/)
+* [Rust resolver implementation](https://github.com/spruceid/ssi/pull/698)
+* [Universal resolver](https://dev.uniresolver.io/)
+* [did:ethr on the universal resolver](https://github.com/uport-project/uport-did-driver/blob/22d35116ce44fe2369e67a3b7a0a5112a2626119/src/app.js#L260)
+* [Alternative resolver implementation (did:ewc)](https://github.com/energywebfoundation/ew-did-registry/tree/development/packages/did-ethr-resolver)
