@@ -77,7 +77,9 @@ a [Decentralized Identifier](https://www.w3.org/TR/did-1.0/).
 
 ~~
 
-I mean it! [Manage your DIDs here](https://mirceanis.xyz/ethr-manager) while you follow along.
+I mean it!<br/>
+[Manage your DIDs here](https://mirceanis.xyz/ethr-manager) while you follow along.<br/>
+[Grab some testnet ETH](https://cloud.google.com/application/web3/faucet/ethereum/sepolia) to make it fun.
 
 --
 
