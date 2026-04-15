@@ -206,11 +206,11 @@ async function renderMermaidDiagrams() {
         codeBlock.dataset.mermaidReady = "true";
     });
 
-    const nodes = document.querySelectorAll(".mermaid:not([data-processed])");
+    const currentSlide = deck.getCurrentSlide();
+    if (!currentSlide) return;
 
-    if (!nodes.length) {
-        return;
-    }
+    const nodes = currentSlide.querySelectorAll(".mermaid:not([data-processed])");
+    if (!nodes.length) return;
 
     const mermaid = await getMermaid();
 
