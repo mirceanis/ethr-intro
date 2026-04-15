@@ -53,8 +53,7 @@ A smart contract is a **program** that lives on the Ethereum virtual machine.
 
 It defines rules (functions) for how its state can be read or updated.
 
-When a **transaction** calls a function on the contract, the contract executes its code and **updates** its state
-accordingly.
+When a **transaction** calls a function on the contract, the contract executes its code and **updates** its state accordingly.
 
 Smart contract functions can emit **events** that are recorded in the **transaction logs**.
 
@@ -413,12 +412,13 @@ flowchart LR
 
 # `did:ethr` is network-scoped
 
-So far we used the simplest form, which defaults to Ethereum mainnet.
+So far we used the simplest form, which defaults to **Ethereum mainnet**.<br/>
+There are [more networks out there](https://chainlist.org/), and `did:ethr` can be used on any of them that have a registry deployed.
 
 Now we make the blockchain network explicit:
 
 `did:ethr:sepolia:0x1234567890abcdef1234567890abcdef12345678`
-<br/>(Sepolia is an ethereum testnet)
+<br/>(Sepolia is an Ethereum testnet)
 
 That is a _different DID_, with different resolution history.
 Effectively an independent DID that happens to share most of method-specific identifier.
@@ -432,6 +432,14 @@ Effectively an independent DID that happens to share most of method-specific ide
 - Network scope changes which events and state count during resolution.
 - Different networks have **different costs** and security properties.
 - DIDs will resolve to different DID Documents when different chains or registries are used.
+
+--
+
+## Do I need to run a node?
+
+Short answer, no.
+
+But you can, if you don't want to trust [public infrastructure](https://chainlist.org/).
 
 ---
 
