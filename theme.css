@@ -382,6 +382,42 @@ body {
   color: #fca5a5;
 }
 
+/* DID version navigation */
+
+.did-version-nav {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+  margin-top: 0.6rem;
+}
+
+.did-version-nav__current {
+  color: var(--muted);
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+.did-version-nav__btn {
+  background: rgba(125, 211, 252, 0.08);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.45rem 1.1rem;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.did-version-nav__btn:hover {
+  background: rgba(125, 211, 252, 0.2);
+  border-color: var(--accent);
+}
+
 /* DID example buttons */
 
 .did-examples {

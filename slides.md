@@ -463,6 +463,11 @@ Enter a `did:ethr` below to resolve it live.
     <button class="did-example" data-did="did:ethr:sepolia:0xf61c81096c96f97e95ac52a570966195ad6c90dd">sepolia testnet (with history)</button>
   </div>
   <div class="did-resolver__result"></div>
+  <div class="did-version-nav" style="display:none">
+    <button class="did-version-nav__btn did-version-nav__prev"></button>
+    <span class="did-version-nav__current"></span>
+    <button class="did-version-nav__btn did-version-nav__next"></button>
+  </div>
 </div>
 
 

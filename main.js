@@ -42,8 +42,8 @@ async function getMermaid() {
 async function getDidResolver() {
     if (!resolverPromise) {
         resolverPromise = Promise.all([
-            import("https://esm.sh/did-resolver@4.1.0"),
-            import("https://esm.sh/ethr-did-resolver@11.1.0"),
+            import("https://esm.sh/did-resolver@5.0.1"),
+            import("https://esm.sh/ethr-did-resolver@13.0.0"),
         ]).then(([{Resolver}, {getResolver}]) => {
             const ethrResolver = getResolver({
                 networks: [
@@ -104,11 +104,14 @@ async function getDidResolver() {
     return resolverPromise;
 }
 
-async function resolveDid(did, container) {
+async function resolveDid(did, widget) {
+    const container = widget.querySelector(".did-resolver__result");
+    const navEl = widget.querySelector(".did-version-nav");
     if (!container) return;
 
     container.textContent = "Resolving…";
     container.className = "did-resolver__result did-result did-result--loading";
+    if (navEl) navEl.style.display = "none";
 
     try {
         const resolver = await getDidResolver();
@@ -122,10 +125,55 @@ async function resolveDid(did, container) {
 
         container.textContent = JSON.stringify(result.didDocument, null, 2);
         container.className = "did-resolver__result did-result did-result--ok";
+
+        if (navEl) updateVersionNav(navEl, did, widget, result.didDocumentMetadata);
     } catch (err) {
         container.textContent = String(err.message || err);
         container.className = "did-resolver__result did-result did-result--error";
     }
+}
+
+function updateVersionNav(navEl, did, widget, meta = {}) {
+    const input = widget.querySelector(".did-resolver__input");
+    const prevBtn = navEl.querySelector(".did-version-nav__prev");
+    const nextBtn = navEl.querySelector(".did-version-nav__next");
+    const currentEl = navEl.querySelector(".did-version-nav__current");
+    const baseDid = did.trim().split("?")[0];
+
+    let hasAny = false;
+
+    if (currentEl) {
+        currentEl.textContent = `versionId: ${meta.versionId ?? 0}`;
+    }
+
+    if (meta.versionId != null) {
+        const prevBlock = meta.versionId - 1;
+        prevBtn.textContent = `prev (${prevBlock})`;
+        prevBtn.style.display = "";
+        prevBtn.onclick = () => {
+            const newDid = `${baseDid}?versionId=${prevBlock}`;
+            if (input) input.value = newDid;
+            resolveDid(newDid, widget);
+        };
+        hasAny = true;
+    } else {
+        prevBtn.style.display = "none";
+    }
+
+    if (meta.nextVersionId != null) {
+        nextBtn.textContent = `next (${meta.nextVersionId})`;
+        nextBtn.style.display = "";
+        nextBtn.onclick = () => {
+            const newDid = `${baseDid}?versionId=${meta.nextVersionId}`;
+            if (input) input.value = newDid;
+            resolveDid(newDid, widget);
+        };
+        hasAny = true;
+    } else {
+        nextBtn.style.display = "none";
+    }
+
+    navEl.style.display = hasAny ? "flex" : "none";
 }
 
 function setupDidResolver() {
@@ -138,7 +186,7 @@ function setupDidResolver() {
         const result = widget.querySelector(".did-resolver__result");
         if (!input || !btn || !result) return;
 
-        const resolve = () => resolveDid(input.value, result);
+        const resolve = () => resolveDid(input.value, widget);
 
         btn.addEventListener("click", resolve);
         input.addEventListener("keydown", (e) => {
@@ -148,7 +196,7 @@ function setupDidResolver() {
         widget.querySelectorAll(".did-example").forEach((el) => {
             el.addEventListener("click", () => {
                 input.value = el.dataset.did;
-                resolveDid(el.dataset.did, result);
+                resolveDid(el.dataset.did, widget);
             });
         });
     });
