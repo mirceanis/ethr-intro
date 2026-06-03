@@ -634,6 +634,37 @@ This separation allows for more flexibility and composability, as different cont
 - It enables the possibility of multiple resolvers with different performance or security tradeoffs, as they all rely on the same control plane.
 - It allows for the possibility of multiple DID planes (e.g. different identifier formats) that can still use the same control plane.
 
+--
+
+## Transaction Plane
+
+There is actually a third plane: **the transaction plane**.
+
+The controller can sign a **meta-transaction** off-chain, and a separate **gas payer** address bundles and submits it to the registry.
+
+This means the controller doesn't need to hold any gas tokens — a third party can cover the cost.
+
+```mermaid
+flowchart LR
+    subgraph did["DID Plane"]
+        user["Verifier"] -->|"resolve(did)"| resolver["Resolver"]
+        resolver -->|"returns"| doc(["DID Document"])
+    end
+    subgraph ctrl["Control Plane"]
+        controller["Controller address"] -->|"signs"| meta(["Meta-transaction"])
+    end
+    subgraph txplane["Transaction Plane"]
+        payer["Gas Payer address"] -->|"submits tx"| registry["ERC-1056 Registry"]
+        registry -->|"emits"| events["Events & State"]
+    end
+    meta -->|"sends"| payer
+    resolver -.->|"reads"| events
+```
+
+The registry verifies the controller's signature inside the meta-transaction, so the gas payer **cannot forge or alter** the update.
+
+Custody always stays with the **controller**.
+
 ---
 
 # Tradeoffs
@@ -662,6 +693,7 @@ But it also inherits some tradeoffs:
 * [Source of this static site](https://github.com/mirceanis/ethr-intro)
 * [DID manager demo](https://mirceanis.xyz/ethr-manager/)
 * [Rust resolver implementation](https://github.com/spruceid/ssi/pull/698)
+* [dotnet resolver implementation](https://github.com/moisesja/net-did/pull/70)
 * [Universal resolver](https://dev.uniresolver.io/)
-* [did:ethr on the universal resolver](https://github.com/uport-project/uport-did-driver/blob/22d35116ce44fe2369e67a3b7a0a5112a2626119/src/app.js#L260)
+* [did:ethr on the universal resolver](https://github.com/veramolabs/uport-did-driver/blob/75522d3a1a2390fad587dccdb32bf5e2f54ba8f4/src/app.js#L229)
 * [Alternative resolver implementation (did:ewc)](https://github.com/energywebfoundation/ew-did-registry/tree/development/packages/did-ethr-resolver)
