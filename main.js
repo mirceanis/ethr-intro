@@ -1,5 +1,8 @@
-import Reveal from "https://esm.sh/reveal.js@5.2.1";
-import Markdown from "https://esm.sh/reveal.js@5.2.1/plugin/markdown/markdown.esm.js";
+import "reveal.js/reveal.css";
+import "reveal.js/theme/serif.css";
+import "./theme.css";
+import Reveal from "reveal.js";
+import Markdown from "reveal.js/plugin/markdown";
 
 const compactViewportQuery = window.matchMedia("(max-width: 900px), (max-height: 700px)");
 
@@ -8,7 +11,7 @@ let resolverPromise;
 
 async function getMermaid() {
     if (!mermaidPromise) {
-        mermaidPromise = import("https://esm.sh/mermaid@11.14.0").then(({default: mermaid}) => {
+        mermaidPromise = import("mermaid").then(({default: mermaid}) => {
             mermaid.initialize({
                 startOnLoad: false,
                 securityLevel: "loose",
@@ -42,8 +45,8 @@ async function getMermaid() {
 async function getDidResolver() {
     if (!resolverPromise) {
         resolverPromise = Promise.all([
-            import("https://esm.sh/did-resolver@5.0.1"),
-            import("https://esm.sh/ethr-did-resolver@13.0.0"),
+            import("did-resolver"),
+            import("ethr-did-resolver"),
         ]).then(([{Resolver}, {getResolver}]) => {
             const ethrResolver = getResolver({
                 networks: [
@@ -52,21 +55,23 @@ async function getDidResolver() {
                         registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b',
                         name: 'mainnet',
                         legacyNonce: true,
-                        rpcUrl: "https://eth.drpc.org"
+                        rpcUrl: "https://eth.drpc.org",
+                        subgraphUrl: "https://api.studio.thegraph.com/query/1744147/erc-1056-mainnet/version/latest",
                     },
                     {
                         chainId: 11155111,
                         registry: '0x03d5003bf0e79C5F5223588F347ebA39AfbC3818',
                         name: 'sepolia',
                         legacyNonce: false,
-                        rpcUrl: "https://sepolia.drpc.org"
+                        rpcUrl: "https://sepolia.drpc.org",
+                        subgraphUrl: "https://api.studio.thegraph.com/query/1744147/erc-1056-sepolia/version/latest",
                     },
                     {
                         chainId: 100,
                         registry: '0x03d5003bf0e79C5F5223588F347ebA39AfbC3818',
                         name: 'gno',
                         legacyNonce: false,
-                        rpcUrl: "https://gnosis.drpc.org"
+                        rpcUrl: "https://rpc.gnosischain.com"
                     },
                     {
                         chainId: 17000,
@@ -80,7 +85,8 @@ async function getDidResolver() {
                         registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b',
                         name: 'polygon',
                         legacyNonce: true,
-                        rpcUrl: "https://polygon.drpc.org"
+                        rpcUrl: "https://polygon.drpc.org",
+                        subgraphUrl: "https://api.studio.thegraph.com/query/1744147/erc-1056-polygon/version/latest",
                     },
                     {
                         chainId: 1313161554,
