@@ -12,8 +12,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       ethr-did-resolver:
-        specifier: 13.1.0-alpha.2
-        version: 13.1.0-alpha.2
+        specifier: 13.1.0-alpha.1
+        version: 13.1.0-alpha.1
       mermaid:
         specifier: ^11.15.0
         version: 11.15.0
@@ -662,8 +662,8 @@ packages:
     resolution: {integrity: sha512-U1wulmetNymijEhpSEQ7Ct/P/Jw9/e7R1j5XIbPRydgV2DjLVMsULDlNksq3RQnFgKoLlZf88ijYtWEXcPa07A==}
     engines: {node: '>=14.0.0'}
 
-  ethr-did-resolver@13.1.0-alpha.2:
-    resolution: {integrity: sha512-rGoJIYGYsRUFYEBSO5QvBT05gzhXWibrf069ayQxuupkzD0YbiCv1EYIxJso9Z4fsQSY8j7fs1bkne49u0QLmA==}
+  ethr-did-resolver@13.1.0-alpha.1:
+    resolution: {integrity: sha512-bVyQlL/MiembnOZpZQjiIf6I1gqQRl/QPXoVpmGPKOTSaCXwpvOlkic+es0mhIvCT7Q36X+czSr+XsWFxfqIHA==}
 
   fdir@6.5.0:
     resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
@@ -1433,7 +1433,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  ethr-did-resolver@13.1.0-alpha.2:
+  ethr-did-resolver@13.1.0-alpha.1:
     dependencies:
       did-resolver: 5.0.1
       ethers: 6.16.0

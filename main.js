@@ -56,7 +56,6 @@ async function getDidResolver() {
                         name: 'mainnet',
                         legacyNonce: true,
                         rpcUrl: "https://eth.drpc.org",
-                        subgraphUrl: "https://api.studio.thegraph.com/query/1744147/erc-1056-mainnet/version/latest",
                     },
                     {
                         chainId: 11155111,
@@ -64,7 +63,6 @@ async function getDidResolver() {
                         name: 'sepolia',
                         legacyNonce: false,
                         rpcUrl: "https://sepolia.drpc.org",
-                        subgraphUrl: "https://api.studio.thegraph.com/query/1744147/erc-1056-sepolia/version/latest",
                     },
                     {
                         chainId: 100,
@@ -86,7 +84,6 @@ async function getDidResolver() {
                         name: 'polygon',
                         legacyNonce: true,
                         rpcUrl: "https://polygon.drpc.org",
-                        subgraphUrl: "https://api.studio.thegraph.com/query/1744147/erc-1056-polygon/version/latest",
                     },
                     {
                         chainId: 1313161554,
